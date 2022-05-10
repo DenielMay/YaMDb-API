@@ -40,6 +40,7 @@ class Title(models.Model):
     name = models.TextField(max_length=256)
     year = models.IntegerField()
     description = models.TextField(blank=True, null=True)
+    rating = 10  # взять из отзывов
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
         Category,
