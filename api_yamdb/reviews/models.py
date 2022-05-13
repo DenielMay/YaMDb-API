@@ -25,6 +25,9 @@ class Category(models.Model):
     name = models.TextField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -32,6 +35,9 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.TextField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -53,9 +59,13 @@ class Title(models.Model):
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
         Category,
+        related_name='genre',
         on_delete=models.SET_NULL,
         null=True,
         )
+
+    class Meta:
+        ordering = ['-year']
 
     def __str__(self):
         return self.name

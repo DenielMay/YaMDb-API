@@ -2,6 +2,8 @@ import datetime as dt
 
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 
 from reviews.models import User, Category, Genre, Title, Review, Comments
 
