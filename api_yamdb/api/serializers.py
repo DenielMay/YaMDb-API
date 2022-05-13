@@ -1,7 +1,10 @@
-from rest_framework import serializers
-from reviews.models import User, Category, Genre, Title
-
 import datetime as dt
+
+from rest_framework import serializers
+from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator
+
+from reviews.models import User, Category, Genre, Title, Review, Comments
 
 
 class CategorySerilizer(serializers.ModelSerializer):
@@ -31,3 +34,48 @@ class TitleSerializer(serializers.ModelSerializer):
         if value > year:
             raise serializers.ValidationError('Проверьте год издания!')
         return value
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(
+        slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault(),
+    )
+    title = serializers.PrimaryKeyRelatedField(
+        required=False,
+        queryset=Title.objects.all(),
+    )
+
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('author', 'title')
+            )
+        ]
+
+    def validate_score(self, value):
+        if 1 > value > 10:
+            raise serializers.ValidationError(
+                'Оценка должна быть в диапазоне от 1 до 10. '
+                f'Было передано значение score={value}'
+            )
+        return value
+
+
+class CommentsSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(
+        slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault(),
+    )
+    review = serializers.PrimaryKeyRelatedField(
+        required=False,
+        queryset=Review.objects.all(),
+    )
+
+    class Meta:
+        model = Comments
+        fields = '__all__'
