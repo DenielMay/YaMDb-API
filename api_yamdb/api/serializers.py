@@ -41,21 +41,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True,
         default=serializers.CurrentUserDefault(),
     )
-    title = serializers.PrimaryKeyRelatedField(
-        required=False,
-        queryset=Title.objects.all(),
-    )
 
     class Meta:
         model = Review
         fields = '__all__'
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title')
-            )
-        ]
+        read_only_fields = ('title',)
 
     def validate_score(self, value):
         if 1 > value > 10:
@@ -71,11 +61,8 @@ class CommentsSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True,
         default=serializers.CurrentUserDefault(),
     )
-    review = serializers.PrimaryKeyRelatedField(
-        required=False,
-        queryset=Review.objects.all(),
-    )
 
     class Meta:
         model = Comments
         fields = '__all__'
+        read_only_fields = ('review',)

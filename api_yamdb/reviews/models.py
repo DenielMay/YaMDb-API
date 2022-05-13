@@ -41,8 +41,15 @@ class Title(models.Model):
     name = models.TextField(max_length=256)
     year = models.IntegerField()
     description = models.TextField(blank=True, null=True)
-    # TODO: доделать rating
-    rating = 10  # взять из отзывов
+    rating = models.PositiveSmallIntegerField(
+        'рейтинг по 10-ти бальной шкале',
+        blank=True,
+        null=True,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        ]
+    )
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
         Category,
@@ -58,8 +65,7 @@ class Review(models.Model):
     text = models.TextField('текст отзыва')
     pub_date = models.DateTimeField(
         'дата отправки отзыва',
-        auto_now_add=True,
-        db_index=True,
+        auto_now_add=True
     )
     score = models.PositiveSmallIntegerField(
         'оценка по 10-ти бальной шкале',
@@ -97,8 +103,7 @@ class Comments(models.Model):
     text = models.TextField('текст комментария')
     pub_date = models.DateTimeField(
         'дата отправки комментария',
-        auto_now_add=True,
-        db_index=True,
+        auto_now_add=True
     )
     review = models.ForeignKey(
         Review,
