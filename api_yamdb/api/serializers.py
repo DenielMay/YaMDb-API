@@ -1,9 +1,9 @@
 import datetime as dt
+from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from django.shortcuts import get_object_or_404
-from django.db.models import Avg
 
 from reviews.models import User, Category, Genre, Title, Review, Comments
 
@@ -23,12 +23,19 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = CategorySerilizer(read_only=True)
-    genre = GenreSerializer(read_only=True, many=True)
-
+    category = serializers.SlugRelatedField(
+        slug_field='name', queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='name', queryset=Genre.objects.all(), many=True
+    )
+    rating = serializers.SerializerMethodField(source='rating')
     class Meta:
         model = Title
-        fields = '__all__'
+        #   fields = '__all__'
+        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+
+
 
     def validate_year(self, value):
         year = dt.date.today().year

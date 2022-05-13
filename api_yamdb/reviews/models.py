@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 
 class User(AbstractUser):
     ROLES = [
@@ -45,17 +46,8 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.TextField(max_length=256)
-    year = models.IntegerField()
+    year = models.PositiveSmallIntegerField()
     description = models.TextField(blank=True, null=True)
-    rating = models.PositiveSmallIntegerField(
-        'рейтинг по 10-ти бальной шкале',
-        blank=True,
-        null=True,
-        validators=[
-            MinValueValidator(1),
-            MaxValueValidator(10)
-        ]
-    )
     genre = models.ManyToManyField(Genre)
     category = models.ForeignKey(
         Category,
@@ -63,6 +55,11 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         )
+
+    @property
+    def rating(self):
+        rating = Review.objects.all().aggregate(Avg('score'))
+        return rating
 
     class Meta:
         ordering = ['-year']
