@@ -5,7 +5,6 @@ from .views import (
     ReviewViewSet, CommentsViewSet,
     get_jwt_token, register, UserViewSet
 )
-from django.db import router
 
 v1_router = DefaultRouter()
 v1_router.register(r'categories', CategoryViewSet, basename='categories')
