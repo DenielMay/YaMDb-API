@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Avg
-from rest_framework import viewsets, mixins
+
+from rest_framework import viewsets, mixins, filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import User, Category, Genre, Title, Review, Comments
@@ -21,12 +21,16 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerilizer
     lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
