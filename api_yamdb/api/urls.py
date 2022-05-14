@@ -5,6 +5,7 @@ from .views import (
     ReviewViewSet, CommentsViewSet,
     get_jwt_token, register, UserViewSet
 )
+from django.db import router
 
 v1_router = DefaultRouter()
 v1_router.register(r'categories', CategoryViewSet, basename='categories')
@@ -27,5 +28,4 @@ urlpatterns = [
     path('v1/', include(v1_router.urls)),
     path('v1/auth/signup/', register, name='register'),
     path('v1/auth/token/', get_jwt_token, name='token'),
-    path('v1/', include(router.urls)),
 ]
