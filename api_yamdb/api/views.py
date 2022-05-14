@@ -18,7 +18,6 @@ from .serializers import (
 from .permissions import Admin
 
 
-
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def register(request):
@@ -107,7 +106,6 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     permission_classes = [Admin | SafeMethods]
-
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
