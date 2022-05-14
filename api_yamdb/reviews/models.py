@@ -1,27 +1,49 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 
+
+
 class User(AbstractUser):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
     ROLES = [
-        ('user', 'пользователь'),
-        ('moderator', 'модератор'),
-        ('admin', 'администратор'),
-    ]
-    bio = models.TextField(
-        'Биография',
-        blank=True,
-    )
+        (USER, 'Пользователь'),
+        (MODERATOR, 'Модератор'),
+        (ADMIN, 'Администратор')]
+    username = models.CharField(
+        verbose_name='Имя пользователя',
+        max_length=150,
+        null=True,
+        unique=True)
+    email = models.EmailField(
+        verbose_name='E-mail пользователя',
+        unique=True,
+        max_length=254)
     role = models.CharField(
-        'Права доступа',
-        max_length=20,
+        verbose_name='Роль пользователя',
+        max_length=150,
         choices=ROLES,
-        default='user',
-    )
+        default=USER)
+    bio = models.TextField(
+        verbose_name='О себе',
+        null=True,
+        blank=True)
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'email'],
+                name='Такой пользователь уже есть')]
+        ordering = ['id']
 
+        
 class Category(models.Model):
     name = models.TextField(max_length=256)
     slug = models.SlugField(max_length=50, unique=True)
@@ -127,3 +149,4 @@ class Comments(models.Model):
 
     def __str__(self):
         return self.text
+      
