@@ -7,7 +7,6 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from .permissions import Admin, AdminModeratorOwner, SafeMethods
-from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import User, Category, Genre, Title, Review, Comments
