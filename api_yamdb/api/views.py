@@ -1,18 +1,20 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, permissions, mixins
+
+from rest_framework import status, viewsets, permissions, mixins, filters
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from .permissions import Admin
-from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
+
 from reviews.models import User, Category, Genre, Title, Review, Comments
 from .serializers import (
     CategorySerilizer, GenreSerializer, TitleSerializer,
     ReviewSerializer, CommentsSerializer, RegistrationSerializer, 
     ConfirmationCodeSerializer, UserSerializer, UserEditSerializer)
+from .permissions import Admin
+
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
@@ -99,12 +101,16 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerilizer
     lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):

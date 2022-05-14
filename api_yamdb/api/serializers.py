@@ -1,10 +1,10 @@
 import datetime as dt
-from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueValidator
 from reviews.models import User, Category, Genre, Title, Review, Comments
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """Проверить ник и почту на уникальность при регистрации"""
@@ -46,6 +46,7 @@ class UserEditSerializer(serializers.ModelSerializer):
         model = User
         read_only_fields = ('role',)
 
+
 class CategorySerilizer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -67,13 +68,16 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field='name', queryset=Genre.objects.all(), many=True
     )
-    rating = serializers.SerializerMethodField(source='rating')
+    rating = serializers.SerializerMethodField()
+
     class Meta:
         model = Title
-        #   fields = '__all__'
-        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+        fields = '__all__'
 
-
+    def get_rating(self, obj):
+        rating = obj.reviews.all().aggregate(Avg('score'))
+        rating = int(rating.get('score__avg'))
+        return rating
 
     def validate_year(self, value):
         year = dt.date.today().year

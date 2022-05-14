@@ -2,8 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.shortcuts import get_object_or_404
-from django.db.models import Avg
+
 
 
 
@@ -77,11 +76,6 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         )
-
-    @property
-    def rating(self):
-        rating = Review.objects.all().aggregate(Avg('score'))
-        return rating
 
     class Meta:
         ordering = ['-year']
