@@ -6,6 +6,7 @@ from rest_framework import status, viewsets, permissions, mixins, filters
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from .permissions import Admin, AdminModeratorOwner, SafeMethods
 from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import User, Category, Genre, Title, Review, Comments
@@ -103,6 +104,7 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    permission_classes = [Admin | SafeMethods]
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
@@ -111,6 +113,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    permission_classes = [Admin | SafeMethods]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -118,10 +121,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend, )
     filterset_fields = ('category', 'genre', 'name', 'year')
+    permission_classes = [Admin | SafeMethods]
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = [AdminModeratorOwner | SafeMethods]
 
     def get_title(self):
         return get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -135,6 +140,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentsSerializer
+    permission_classes = [AdminModeratorOwner | SafeMethods]
 
     def get_review(self):
         return get_object_or_404(Review, id=self.kwargs.get('review_id'))
