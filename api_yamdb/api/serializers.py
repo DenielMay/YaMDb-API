@@ -81,7 +81,10 @@ class TitleSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         rating = obj.reviews.all().aggregate(Avg('score'))
-        rating = int(rating.get('score__avg'))
+        try:
+            rating = int(rating.get('score__avg'))
+        except:
+            rating = None
         return rating
 
     def validate_year(self, value):
@@ -103,12 +106,27 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('title',)
 
     def validate_score(self, value):
+        """Проверяем, что значение score от 1 до 10."""
         if 1 > value > 10:
             raise serializers.ValidationError(
                 'Оценка должна быть в диапазоне от 1 до 10. '
                 f'Было передано значение score={value}'
             )
         return value
+
+    def validate(self, data):
+        """Проверяем уникальность отзыва."""
+        author = self.context['request'].user
+        title_id = self.context['view'].kwargs['title_id']
+        is_post_request = 'POST' in str(self.context['request'])
+
+        review_exists = Review.objects.filter(author=author,
+                                              title_id=title_id).exists()
+        if review_exists and is_post_request:
+            raise serializers.ValidationError(
+                'Пользователь уже отправлял отзыв на это произведение.'
+            )
+        return data
 
 
 class CommentsSerializer(serializers.ModelSerializer):

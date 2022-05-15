@@ -1,0 +1,6 @@
+id,password,last_login,is_superuser,first_name,last_name,is_staff,is_active,date_joined,username,email,role,bio
+100,P@ssw0rd,,0,"","",0,1,2022-05-15 17:57:21,bingobongo,bingobongo@yamdb.fake,user,""
+101,P@ssw0rd,,0,"","",0,1,2022-05-15 17:58:24,capt_obvious,capt_obvious@yamdb.fake,admin,""
+102,P@ssw0rd,,0,"","",0,1,2022-05-15 17:58:50,faust,faust@yamdb.fake,user,""
+103,P@ssw0rd,,0,"","",0,1,2022-05-15 17:59:07,reviewer,reviewer@yamdb.fake,user,""
+104,P@ssw0rd,,0,"","",0,1,2022-05-15 17:59:25,angry,angry@yamdb.fake,moderator,""

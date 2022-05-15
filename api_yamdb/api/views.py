@@ -13,7 +13,7 @@ from rest_framework.response import Response
 
 from reviews.models import Category, Genre, Review, Title
 from api_yamdb.settings import EMAIL_HOST_USER
-from .permissions import Admin, SafeMethods, AdminModeratorOwner
+from .permissions import Admin, IsAdminOrReadOnly, ReviewCommentPermission
 from .serializers import (GenreSerializer, ReviewSerializer, TitleSerializer,
                           TokenConfirmationSerializer,
                           UserRegistrationSerializer, UserSerializer, )
@@ -101,7 +101,7 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    permission_classes = [Admin | SafeMethods]
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
@@ -110,7 +110,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-    permission_classes = [Admin | SafeMethods]
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -118,18 +118,18 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year')
-    permission_classes = [Admin | SafeMethods]
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [AdminModeratorOwner | SafeMethods]
+    permission_classes = (ReviewCommentPermission,)
 
     def get_title(self):
         return get_object_or_404(Title, id=self.kwargs.get('title_id'))
 
     def get_queryset(self):
-        return Review.objects.filter(title=self.get_title())
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self.get_title())
@@ -137,13 +137,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentsSerializer
-    permission_classes = [AdminModeratorOwner | SafeMethods]
+    permission_classes = (ReviewCommentPermission,)
 
     def get_review(self):
         return get_object_or_404(Review, id=self.kwargs.get('review_id'))
 
     def get_queryset(self):
-        return Comments.objects.filter(review=self.get_review())
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, review=self.get_review())
