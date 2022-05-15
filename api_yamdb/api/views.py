@@ -13,7 +13,7 @@ from rest_framework.response import Response
 
 from reviews.models import Category, Genre, Review, Title
 from api_yamdb.settings import EMAIL_HOST_USER
-from .permissions import IsAdmin
+from .permissions import Admin, SafeMethods, AdminModeratorOwner
 from .serializers import (GenreSerializer, ReviewSerializer, TitleSerializer,
                           TokenConfirmationSerializer,
                           UserRegistrationSerializer, UserSerializer, )
@@ -69,7 +69,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     filter_backends = [filters.OrderingFilter]
     ordering = ['username']
-    permission_classes = [IsAdmin]
+    permission_classes = [Admin]
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     @action(
