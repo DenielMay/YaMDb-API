@@ -1,8 +1,8 @@
 import datetime as dt
+
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from reviews.models import User, Category, Genre, Title, Review, Comments
-
 
 class UserRegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
@@ -74,6 +74,14 @@ class TitleSerializer(serializers.ModelSerializer):
         #   fields = '__all__'
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+
+
+
+    def get_rating(self, obj):
+        rating = obj.reviews.all().aggregate(Avg('score'))
+        rating = int(rating.get('score__avg'))
+        return rating
+
 
     def validate_year(self, value):
         year = dt.date.today().year

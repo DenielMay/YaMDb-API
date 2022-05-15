@@ -24,6 +24,7 @@ def get_tokens_for_user(user):
     return {'access': str(refresh.access_token)}
 
 
+
 @api_view(["POST"])
 def sign_up(request):
     def send_email(user):
@@ -98,12 +99,18 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerilizer
     lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    permission_classes = [Admin | SafeMethods]
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    permission_classes = [Admin | SafeMethods]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -111,10 +118,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year')
+    permission_classes = [Admin | SafeMethods]
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = [AdminModeratorOwner | SafeMethods]
 
     def get_title(self):
         return get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -128,6 +137,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentsSerializer
+    permission_classes = [AdminModeratorOwner | SafeMethods]
 
     def get_review(self):
         return get_object_or_404(Review, id=self.kwargs.get('review_id'))

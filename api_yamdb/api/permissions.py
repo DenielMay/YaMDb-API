@@ -16,6 +16,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
                 or request.user.is_admin)
 
 
+
 class ReviewCommentPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS
