@@ -64,28 +64,27 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    category = CategorySerilizer(read_only=True)
+    genre = GenreSerializer(read_only=True, many=True)
+    rating = serializers.SerializerMethodField(source='rating')
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+
+    def get_rating(self, obj):
+        rating = obj.reviews.all().aggregate(Avg('score')).get('score__avg')
+        if rating:
+            return int(rating)
+
+
+class PostTitleSerializer(TitleSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all()
     )
     genre = serializers.SlugRelatedField(
         slug_field='slug', queryset=Genre.objects.all(), many=True
     )
-    rating = serializers.SerializerMethodField(source='rating')
-
-    class Meta:
-        model = Title
-        #   fields = '__all__'
-        fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
-        )
-
-    def get_rating(self, obj):
-        rating = obj.reviews.all().aggregate(Avg('score'))
-        try:
-            rating = int(rating.get('score__avg'))
-        except:
-            rating = None
-        return rating
 
     def validate_year(self, value):
         year = dt.date.today().year

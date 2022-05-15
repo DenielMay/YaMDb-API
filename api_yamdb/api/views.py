@@ -1,5 +1,3 @@
-from rest_framework import mixins
-
 from reviews.models import User, Comments
 from .serializers import CategorySerilizer, CommentsSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -7,7 +5,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status, viewsets, permissions
+from rest_framework import filters, status, viewsets, permissions, mixins
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 
@@ -15,7 +13,7 @@ from reviews.models import Category, Genre, Review, Title
 from api_yamdb.settings import EMAIL_HOST_USER
 from .permissions import Admin, IsAdminOrReadOnly, ReviewCommentPermission
 from .serializers import (GenreSerializer, ReviewSerializer, TitleSerializer,
-                          TokenConfirmationSerializer,
+                          PostTitleSerializer, TokenConfirmationSerializer,
                           UserRegistrationSerializer, UserSerializer, )
 
 
@@ -117,8 +115,15 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
+    #filterset_fields = ('category'['slug'], 'genre'['slug'], 'name', 'year')
     filterset_fields = ('category', 'genre', 'name', 'year')
     permission_classes = (IsAdminOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action == 'create' or self.action == 'partial_update':
+            return PostTitleSerializer
+        else:
+            return TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
