@@ -24,7 +24,6 @@ def get_tokens_for_user(user):
     return {'access': str(refresh.access_token)}
 
 
-
 @api_view(["POST"])
 def sign_up(request):
     def send_email(user):
@@ -89,9 +88,10 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ListCreateDestroyViewSet(
-    mixins.ListModelMixin, mixins.CreateModelMixin,
-    mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class ListCreateDestroyViewSet(mixins.ListModelMixin,
+                               mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               viewsets.GenericViewSet):
     pass
 
 
