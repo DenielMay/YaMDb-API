@@ -1,46 +1,30 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-
-
 
 
 class User(AbstractUser):
     USER = 'user'
     MODERATOR = 'moderator'
     ADMIN = 'admin'
-    ROLES = [
-        (USER, 'Пользователь'),
-        (MODERATOR, 'Модератор'),
-        (ADMIN, 'Администратор')]
-    username = models.CharField(
-        verbose_name='Имя пользователя',
-        max_length=150,
-        null=True,
-        unique=True)
-    email = models.EmailField(
-        verbose_name='E-mail пользователя',
-        unique=True,
-        max_length=254)
-    role = models.CharField(
-        verbose_name='Роль пользователя',
-        max_length=150,
-        choices=ROLES,
-        default=USER)
-    bio = models.TextField(
-        verbose_name='О себе',
-        null=True,
-        blank=True)
+    ROLES = ((USER, 'USER'), (MODERATOR, 'MODERATOR'), (ADMIN, 'ADMIN'))
 
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['username', 'email'],
-                name='Такой пользователь уже есть')]
-        ordering = ['id']
+    email = models.EmailField(max_length=254, unique=True, blank=False)
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    bio = models.TextField(verbose_name='Биография', blank=True)
+    role = models.CharField(max_length=300, choices=ROLES, default=ROLES[0][0])
+
+    @property
+    def is_admin(self):
+        return self.is_superuser or self.role == self.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    def __str__(self):
+        return self.username
 
         
 class Category(models.Model):
