@@ -1,26 +1,31 @@
 from rest_framework import permissions
 
 
-class Admin(permissions.BasePermission):
-    """Разрешение на все у суперюзера"""
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.is_admin
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """ Админы и модеры могут удалять и редактировать"""
 
     def has_permission(self, request, view):
-        return request.user.is_authenticated and (
-                request.user.is_admin or request.user.is_superuser)
+        if not request.user.is_authenticated:
+            return request.method in permissions.SAFE_METHODS
+        return (request.method in permissions.SAFE_METHODS
+                or request.user.is_admin)
 
 
-class SafeMethods(permissions.BasePermission):
-    """"Безопасные методы"""
-
+class ReviewCommentPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS and
-                request.user.is_authenticated)
-
-
-class AdminModeratorOwner(permissions.BasePermission):
-    """Админ, модератор и автор могут редактировать/удалять коммент, ревью"""
+        return (request.method in permissions.SAFE_METHODS
+                or request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        return (request.user.is_admin
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if not request.user.is_authenticated:
+            return False
+        return (obj.author == request.user
                 or request.user.is_moderator
-                or obj.author == request.user)
+                or request.user.is_admin)
