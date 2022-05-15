@@ -1,18 +1,12 @@
 import datetime as dt
-from django.db.models import Avg
+
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueValidator
 from reviews.models import User, Category, Genre, Title, Review, Comments
 
-
-class RegistrationSerializer(serializers.ModelSerializer):
-    """Проверить ник и почту на уникальность при регистрации"""
-
-    username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())])
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())])
+class UserRegistrationSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    username = serializers.CharField(required=True)
 
     def validate_username(self, value):
         """Ник (me) запрещен"""
@@ -23,6 +17,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("username", "email")
         model = User
+
+
+class TokenConfirmationSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(required=True)
 
 
 class ConfirmationCodeSerializer(serializers.Serializer):
@@ -68,16 +67,21 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field='name', queryset=Genre.objects.all(), many=True
     )
-    rating = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField(source='rating')
 
     class Meta:
         model = Title
-        fields = '__all__'
+        #   fields = '__all__'
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+
+
 
     def get_rating(self, obj):
         rating = obj.reviews.all().aggregate(Avg('score'))
         rating = int(rating.get('score__avg'))
         return rating
+
 
     def validate_year(self, value):
         year = dt.date.today().year
