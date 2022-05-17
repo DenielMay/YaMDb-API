@@ -4,7 +4,7 @@ from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import User, Category, Genre, Title, Review, Comments
+from reviews.models import Category, Comments, Genre, Review, Title, User
 
 
 class UserRegistrationSerializer(serializers.Serializer):
@@ -16,8 +16,8 @@ class UserRegistrationSerializer(serializers.Serializer):
         model = User
 
     def validate_username(self, value):
-        """Ник (me) запрещен"""
-        if value == "me":
+        """Ник (me) запрещен."""
+        if value == 'me':
             raise serializers.ValidationError('Логин недоступен')
         return value
 
@@ -28,7 +28,7 @@ class TokenConfirmationSerializer(serializers.Serializer):
 
 
 class ConfirmationCodeSerializer(serializers.Serializer):
-    """Код подтверждения на почту после регистрации"""
+    """Код подтверждения на почту после регистрации."""
 
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
@@ -64,7 +64,8 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    """Сериализатор для GET запросов"""
+    """Сериализатор для GET запросов."""
+
     category = CategorySerilizer(read_only=True)
     genre = GenreSerializer(read_only=True, many=True)
     rating = serializers.SerializerMethodField(source='rating')
@@ -74,14 +75,15 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_rating(self, obj):
-        """Получение рейтинга произведения, при его наличии"""
+        """Получение рейтинга произведения, при его наличии."""
         rating = obj.reviews.all().aggregate(Avg('score')).get('score__avg')
         if rating:
             return int(rating)
 
 
 class PostTitleSerializer(TitleSerializer):
-    """Сериализатор для POST и UPDATE запросов"""
+    """Сериализатор для POST и UPDATE запросов."""
+
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all()
     )
@@ -90,7 +92,7 @@ class PostTitleSerializer(TitleSerializer):
     )
 
     def validate_year(self, value):
-        """Валидатор года выхода произведения"""
+        """Валидатор года выхода произведения."""
         year = dt.date.today().year
         if value > year:
             raise serializers.ValidationError('Проверьте год издания!')
