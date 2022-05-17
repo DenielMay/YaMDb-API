@@ -7,7 +7,7 @@ class Admin(permissions.BasePermission):
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
-    """ Админы и модеры могут удалять и редактировать"""
+    """Админы и модеры могут удалять и редактировать."""
 
     def has_permission(self, request, view):
         if not request.user.is_authenticated:

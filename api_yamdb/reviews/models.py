@@ -1,6 +1,6 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
 
 class User(AbstractUser):
@@ -59,7 +59,7 @@ class Title(models.Model):
         related_name='genre',
         on_delete=models.SET_NULL,
         null=True,
-        )
+    )
 
     class Meta:
         ordering = ['-year']
@@ -86,13 +86,13 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='пользователь, оставляющий отзыв',
-        )
+    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='произведение',
-        )
+    )
 
     class Meta:
         ordering = ['-pub_date']

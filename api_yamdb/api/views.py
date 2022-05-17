@@ -1,20 +1,21 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework_simplejwt.tokens import RefreshToken
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status, viewsets, permissions, mixins
-from rest_framework.decorators import api_view, action
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from reviews.models import User, Category, Genre, Review, Title
 from api_yamdb.settings import EMAIL_HOST_USER
-from .serializers import CategorySerilizer, CommentsSerializer
-from .permissions import Admin, IsAdminOrReadOnly, ReviewCommentPermission
-from .serializers import (GenreSerializer, ReviewSerializer, TitleSerializer,
-                          PostTitleSerializer, TokenConfirmationSerializer,
-                          UserRegistrationSerializer, UserSerializer, )
+from reviews.models import Category, Genre, Review, Title, User
 from .filters import TitleFilter
+from .permissions import Admin, IsAdminOrReadOnly, ReviewCommentPermission
+from .serializers import CategorySerilizer, CommentsSerializer
+from .serializers import (GenreSerializer, PostTitleSerializer,
+                          ReviewSerializer, TitleSerializer,
+                          TokenConfirmationSerializer,
+                          UserRegistrationSerializer, UserSerializer)
 
 
 def get_tokens_for_user(user):
@@ -22,7 +23,7 @@ def get_tokens_for_user(user):
     return {'access': str(refresh.access_token)}
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 def sign_up(request):
     def send_email(user):
         token = default_token_generator.make_token(user)
@@ -46,7 +47,7 @@ def sign_up(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 def get_token(request):
     serializer = TokenConfirmationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
