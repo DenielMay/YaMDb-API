@@ -64,6 +64,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Сериализатор для GET запросов"""
     category = CategorySerilizer(read_only=True)
     genre = GenreSerializer(read_only=True, many=True)
     rating = serializers.SerializerMethodField(source='rating')
@@ -73,12 +74,14 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_rating(self, obj):
+        """Получение рейтинга произведения, при его наличии"""
         rating = obj.reviews.all().aggregate(Avg('score')).get('score__avg')
         if rating:
             return int(rating)
 
 
 class PostTitleSerializer(TitleSerializer):
+    """Сериализатор для POST и UPDATE запросов"""
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all()
     )
@@ -87,6 +90,7 @@ class PostTitleSerializer(TitleSerializer):
     )
 
     def validate_year(self, value):
+        """Валидатор года выхода произведения"""
         year = dt.date.today().year
         if value > year:
             raise serializers.ValidationError('Проверьте год издания!')

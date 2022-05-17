@@ -1,20 +1,20 @@
-from reviews.models import User, Comments
-from .serializers import CategorySerilizer, CommentsSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.tokens import RefreshToken
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets, permissions, mixins
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 
-from reviews.models import Category, Genre, Review, Title
+from reviews.models import User, Category, Genre, Review, Title
 from api_yamdb.settings import EMAIL_HOST_USER
+from .serializers import CategorySerilizer, CommentsSerializer
 from .permissions import Admin, IsAdminOrReadOnly, ReviewCommentPermission
 from .serializers import (GenreSerializer, ReviewSerializer, TitleSerializer,
                           PostTitleSerializer, TokenConfirmationSerializer,
                           UserRegistrationSerializer, UserSerializer, )
+from .filters import TitleFilter
 
 
 def get_tokens_for_user(user):
@@ -115,8 +115,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend,)
-    #filterset_fields = ('category'['slug'], 'genre'['slug'], 'name', 'year')
-    filterset_fields = ('category', 'genre', 'name', 'year')
+    filter_class = TitleFilter
     permission_classes = (IsAdminOrReadOnly,)
 
     def get_serializer_class(self):
