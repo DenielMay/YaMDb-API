@@ -121,13 +121,15 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Проверяем уникальность отзыва."""
+        is_post_request = 'POST' in str(self.context['request'])
+        if not is_post_request:
+            return data
+
         author = self.context['request'].user
         title_id = self.context['view'].kwargs['title_id']
-        is_post_request = 'POST' in str(self.context['request'])
-
         review_exists = Review.objects.filter(author=author,
                                               title_id=title_id).exists()
-        if review_exists and is_post_request:
+        if review_exists:
             raise serializers.ValidationError(
                 'Пользователь уже отправлял отзыв на это произведение.'
             )
